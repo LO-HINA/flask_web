@@ -3,3 +3,4 @@ flask-sqlalchemy
 flask-mail
 python-dotenv
 gunicorn
+flask-migrate
