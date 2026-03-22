@@ -4,16 +4,26 @@ from models import User, EmailCode
 from datetime import datetime, timedelta
 import random
 import string
-import config
 from flask_mail import Message
 from flask import g, session
+import os
+
 
 app = Flask(__name__)
-app.config.from_object(config.config['default'])
-
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+# 新增这行（加MAIL配置，和Render环境变量对应）
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))  # 端口转整数
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'  # 字符串转布尔
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # 新增，关闭修改跟踪
 # 绑定扩展到Flask应用
 db.init_app(app)
 mail.init_app(app)
+with app.app_context():
+    db.create_all()
 
 
 
@@ -166,4 +176,4 @@ def wink_dress_1():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5050, debug=True)
+    app.run(debug=False, port=int(os.getenv('PORT', 5000)), host='0.0.0.0')
