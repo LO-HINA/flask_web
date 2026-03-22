@@ -1,11 +1,14 @@
-# init_db.py
 from flask import Flask
 from exsitions import db
 from models import User, EmailCode
-import config
+import os  # 新增
 
 app = Flask(__name__)
-app.config.from_object(config.config['default'])
+# 替换原来的 config 引用
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 db.init_app(app)
 
 # 初始化数据库
