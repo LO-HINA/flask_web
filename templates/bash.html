@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>blue achrive()</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        // Tailwind 配置，统一主题色
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'gemini-bg': '#131314',     /* 主背景 */
+                        'gemini-sidebar': '#1e1f20', /* 侧边栏背景 */
+                        'gemini-hover': '#2d2f31',   /* 悬停态 */
+                        'gemini-active': '#3a3d40',  /* 选中态 */
+                        'gemini-blue': '#a8c7fa',    /* 图标高亮蓝 */
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 1. 基础页面设置 */
+        body { background-color: #131314; color: #e3e3e3; font-family: system-ui, -apple-system, sans-serif; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+
+        /* --- 侧边栏核心逻辑 (保持你原本的所有逻辑不动) --- */
+        #sidebar { transition: width 0.3s ease; position: relative; }
+        #sidebar.sidebar-collapsed { width: 4.5rem !important; }
+
+        .sidebar-label, .logo-text, .sidebar-section-title {
+            display: inline-block;
+            white-space: nowrap;
+            overflow: hidden;
+            transition: max-width 0.3s ease, opacity 0.2s ease;
+            max-width: 200px;
+            opacity: 1;
+        }
+
+        #sidebar.sidebar-collapsed .sidebar-label,
+        #sidebar.sidebar-collapsed .logo-text,
+        #sidebar.sidebar-collapsed .sidebar-section-title {
+            max-width: 0 !important;
+            opacity: 0 !important;
+            margin: 0 !important;
+        }
+
+        #sidebar.sidebar-collapsed .sidebar-link {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            justify-content: center !important;
+            gap: 0 !important;
+            width: 3.25rem;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #sidebar.sidebar-collapsed i.fas {
+            width: 1.5rem !important;
+            margin: 0 !important;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #sidebar.sidebar-collapsed .h-16 {
+            padding: 0 !important;
+            justify-content: center !important;
+        }
+        #sidebar.sidebar-collapsed .h-16 a {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        #sidebar.sidebar-collapsed .submenu-icon {
+            display: none !important;
+        }
+
+        #sidebar.sidebar-collapsed #sidebar-toggle {
+            margin-right: 0 !important;
+        }
+
+        /* 模态框基础显示逻辑 */
+        #authModal.hidden { display: none; }
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body class="flex h-screen overflow-hidden">
+
+    <aside id="sidebar" class="w-64 flex-shrink-0 flex flex-col border-r border-gray-800 bg-gemini-sidebar transition-all duration-300">
+        <div class="h-16 flex items-center px-5 border-b border-gray-800 justify-between">
+            <a href="/" class="flex items-center gap-3">
+                <span class="logo-text text-lg font-medium text-white">{% block where %}{% endblock %}</span>
+            </a>
+            <button id="sidebar-toggle" aria-label="切换侧边栏" class="p-2 rounded-md hover:bg-gemini-hover text-gray-300">
+                <i class="fas fa-bars text-lg"></i>
+            </button>
+        </div>
+
+        <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
+            {% set nav_items = [
+                {
+                    'name': '空崎 ヒナ',
+                    'icon': 'fa-project-diagram',
+                    'id': 'submenu-1',
+                    'sub_items': [
+                        {'name': '空崎 ヒナ', 'url': '/hina/dress/1'},
+                        {'name': '空崎 ヒナ（ドレス）', 'url': '/hina/dress/2'},
+                        {'name': '空崎 ヒナ（水着）', 'url': '/hina/dress/3'}
+                    ]
+                },
+                {
+                    'name': '小鳥遊 ホシノ',
+                    'icon': 'fa-project-diagram',
+                    'id': 'submenu-2',
+                    'sub_items': [
+                        {'name': '小鳥遊 ホシノ', 'url': '/hoshino/dress/1'},
+                        {'name': '空崎 ヒナ（ドレス）', 'url': '/hoshino/dress/2'},
+                        {'name': '空崎 ヒナ（ドレス）', 'url': '/hoshino/dress/2'}
+                    ]
+                },
+                {
+                    'name': '白洲 アズサ',
+                    'icon': 'fa-project-diagram',
+                    'id': 'submenu-3',
+                    'sub_items': [
+                        {'name': '白洲 アズサ（水着）', 'url': '/azusa/dress/1'},
+                    ]
+                },
+                {
+                    'name': '春原瞬',
+                    'icon': 'fa-project-diagram',
+                    'id': 'submenu-4',
+                    'sub_items': [
+                        {'name': '旬（幼女）', 'url': '/wink/dress/1'},
+                    ]
+                }
+            ] %}
+
+            <div class="sidebar-section-title px-3 pt-3 pb-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                核心功能
+            </div>
+
+            <a href="/" class="sidebar-link group flex items-center gap-3.5 px-4 py-2.5 rounded-full transition-colors duration-200
+               {{ 'bg-gemini-active text-white' if request.path == '/' else 'text-gray-300 hover:bg-gemini-hover hover:text-white' }}">
+                <i class="fas fa-home {{ 'text-gemini-blue' if request.path == '/' }} w-5 text-center"></i>
+                <span class="sidebar-label flex-1 font-medium text-sm">主页</span>
+            </a>
+
+            {% for item in nav_items %}
+                {% set is_active_group = false %}
+                {% for sub in item.sub_items %}
+                    {% if request.path == sub.url %}{% set is_active_group = true %}{% endif %}
+                {% endfor %}
+                <div>
+                    <button class="project-toggle-btn sidebar-link w-full group flex items-center justify-between gap-3.5 px-4 py-2.5 rounded-full transition-colors duration-200 hover:bg-gemini-hover hover:text-white text-gray-300"
+                            data-target="{{ item.id }}">
+                        <i class="fas {{ item.icon }} group-hover:text-gemini-blue w-5 text-center transition-colors {{ 'text-gemini-blue' if is_active_group }}"></i>
+                        <span class="sidebar-label flex-1 text-sm text-left">{{ item.name }}</span>
+                        <i class="submenu-icon fas fa-chevron-down text-xs transition-transform duration-200 {{ 'rotate-180' if is_active_group }}"></i>
+                    </button>
+                    <div id="{{ item.id }}" class="mt-1 space-y-1 ml-8 {{ 'block' if is_active_group else 'hidden' }}">
+                        {% for sub in item.sub_items %}
+                            <a href="{{ sub.url }}" class="group block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ 'bg-[#D4C8EA] text-[#512B58] font-bold shadow-sm' if request.path == sub.url else 'text-gray-400 hover:bg-gemini-hover hover:text-white' }}">
+                                {{ sub.name }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </nav>
+
+        <div class="p-3 border-t border-gray-800 bg-gemini-sidebar">
+            <a href="#" class="sidebar-link group flex items-center gap-3.5 px-4 py-2.5 rounded-full transition-colors duration-200 hover:bg-gemini-hover hover:text-white text-gray-300">
+                <i class="fas fa-cog w-5 text-center group-hover:text-gemini-blue"></i>
+                <span class="sidebar-label text-sm">设置与帮助</span>
+            </a>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <header class="h-20 flex items-center justify-between px-8 bg-gemini-bg">
+            <div class="w-1/4"></div>
+            <div class="flex-1 text-center">
+                <h1 class="text-xl font-medium text-white tracking-tight">
+                    {% block breadcrumb %}{% endblock %}
+                </h1>
+            </div>
+
+            <div class="w-1/4 flex items-center justify-end gap-3">
+                {% if user %}
+                    <a href="/profile" class="text-sm font-medium text-gemini-blue hover:text-white transition flex items-center gap-2">
+                        <i class="fas fa-user-circle"></i>
+                        {{ user.username }}
+                    </a>
+                    <a href="/logout" class="text-sm font-medium bg-gray-800 hover:bg-red-900/40 text-white px-5 py-2 rounded-full transition duration-150 border border-gray-700">
+                        退出登录
+                    </a>
+                {% else %}
+                    <button onclick="openAuthModal('login')" class="text-sm font-medium text-gray-300 hover:text-white transition">
+                        登录
+                    </button>
+                    <button onclick="openAuthModal('register')" class="text-sm font-medium bg-gray-800 hover:bg-gemini-hover text-white px-5 py-2 rounded-full transition duration-150">
+                        注册
+                    </button>
+                {% endif %}
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-8">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <div id="authModal" class="fixed inset-0 z-[100] items-center justify-center hidden">
+    <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeAuthModal()"></div>
+    <div class="relative w-full max-w-[400px] bg-gemini-sidebar border border-gray-800 p-10 rounded-3xl shadow-2xl">
+        <h2 id="modalTitle" class="text-2xl font-medium text-white mb-8 text-center">登录</h2>
+
+        <form id="authForm" class="space-y-5" onsubmit="handleAuthSubmit(event)">
+            <input type="text" id="authName" name="username" placeholder="用户名" required
+                class="w-full bg-gemini-bg border border-gray-700 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-gemini-blue transition-all">
+
+            <input type="password" id="authPassword" name="password" placeholder="密码" required
+                class="w-full bg-gemini-bg border border-gray-700 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-gemini-blue transition-all">
+
+            <div id="regConfirmField" class="hidden space-y-5">
+                <input type="email" id="authEmail" name="email" placeholder="电子邮件"
+                    class="w-full bg-gemini-bg border border-gray-700 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-gemini-blue transition-all">
+
+                <!-- 新增：验证码输入框 + 发送按钮 组合 -->
+                <div class="flex gap-3">
+                    <input type="text" id="authCheckword" name="code" placeholder="验证码"
+                        class="flex-1 bg-gemini-bg border border-gray-700 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-gemini-blue transition-all">
+                    <button type="button" id="sendCodeBtn" onclick="sendVerifyCode()"
+                        class="w-32 bg-gray-700 hover:bg-gray-600 text-white font-medium py-4 rounded-xl transition-all">
+                        发送验证码
+                    </button>
+                </div>
+
+                <input type="password" id="authConfirmPassword" name="confirm_password" placeholder="确认密码"
+                       class="w-full bg-gemini-bg border border-gray-700 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-gemini-blue transition-all">
+            </div>
+
+            <button type="submit" class="w-full bg-gemini-blue text-gemini-bg font-bold py-4 rounded-full hover:opacity-90 transition-opacity mt-4">
+                继续
+            </button>
+        </form>
+
+        <div class="mt-8 text-center">
+            <button onclick="switchMode()" id="switchBtn" class="text-sm text-gemini-blue hover:underline">没有账号？创建账号</button>
+        </div>
+    </div>
+</div>
+
+</body>
+<script>
+    // 1. 原有的侧边栏逻辑 (严格保留)
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    const allProjectBtns = document.querySelectorAll('.project-toggle-btn');
+
+    toggleBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('sidebar-collapsed');
+        const expanded = !sidebar.classList.contains('sidebar-collapsed');
+        if (!expanded) {
+            allProjectBtns.forEach(btn => {
+                const submenuId = btn.getAttribute('data-target');
+                document.getElementById(submenuId).classList.add('hidden');
+                btn.querySelector('.submenu-icon').classList.remove('rotate-180');
+            });
+        }
+    });
+
+    allProjectBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const submenuId = btn.getAttribute('data-target');
+            const submenu = document.getElementById(submenuId);
+            const icon = btn.querySelector('.submenu-icon');
+            if (sidebar.classList.contains('sidebar-collapsed')) {
+                sidebar.classList.remove('sidebar-collapsed');
+                submenu.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+                return;
+            }
+            const hidden = submenu.classList.toggle('hidden');
+            icon.classList.toggle('rotate-180', !hidden);
+        });
+    });
+
+    // 2. 模态框逻辑
+    const modal = document.getElementById('authModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const regField = document.getElementById('regConfirmField');
+    const switchBtn = document.getElementById('switchBtn');
+
+    function openAuthModal(mode) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        updateModalUI(mode);
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeAuthModal() {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = 'auto';
+    }
+
+    function updateModalUI(mode) {
+        if (mode === 'register') {
+            modalTitle.innerText = '创建账号';
+            regField.classList.remove('hidden');
+            switchBtn.innerText = '已有账号？登录';
+        } else {
+            modalTitle.innerText = '登录';
+            regField.classList.add('hidden');
+            switchBtn.innerText = '没有账号？创建账号';
+        }
+    }
+
+    function switchMode() {
+        const isLogin = modalTitle.innerText === '登录';
+        updateModalUI(isLogin ? 'register' : 'login');
+    }
+
+    async function handleAuthSubmit(event) {
+        event.preventDefault(); // 阻止表单默认提交
+
+        const isRegister = document.getElementById('modalTitle').innerText === '创建账号';
+        const formData = new FormData(); // 后端用 form.get 接收，所以改用 FormData 格式
+
+        // 基础参数
+        const username = document.getElementById('authName').value;
+        const password = document.getElementById('authPassword').value;
+        formData.append('username', username);
+        formData.append('password', password);
+
+        // 注册模式额外处理
+        if (isRegister) {
+            const confirmPw = document.getElementById('authConfirmPassword').value;
+            const email = document.getElementById('authEmail').value;
+            const code = document.getElementById('authCheckword').value;
+
+            // 前端基础校验
+            if (!email) {
+                alert("请输入邮箱！");
+                return;
+            }
+            if (password !== confirmPw) {
+                alert("两次输入的密码不一致！");
+                return;
+            }
+            if (!code) {
+                alert("请输入验证码！");
+                return;
+            }
+
+            // 注册参数追加
+            formData.append('email', email);
+            formData.append('code', code); // 后端接收的参数名是 code，不是 checkword
+        }
+
+        // 请求地址
+        const url = isRegister ? '/register' : '/login';
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                body: formData // 后端用 request.form 接收，所以直接传 FormData（无需 JSON 序列化）
+            });
+
+            const result = await response.json();
+
+            if (result.result) {
+                alert(isRegister ? "注册成功！" : "登录成功！");
+                closeAuthModal();
+                window.location.reload();
+            } else {
+                alert("操作失败: " + result.message);
+            }
+        } catch (error) {
+            console.error("请求出错:", error);
+            alert("网络异常，请稍后重试！");
+        }
+    }
+
+
+    // 发送验证码函数
+    async function sendVerifyCode() {
+        const email = document.getElementById('authEmail').value;
+        const sendBtn = document.getElementById('sendCodeBtn');
+
+        // 邮箱格式简单校验
+        if (!email || !email.includes('@')) {
+            alert("请输入有效的邮箱地址！");
+            return;
+        }
+
+        // 按钮置灰防重复点击
+        sendBtn.disabled = true;
+        sendBtn.textContent = "发送中...";
+        sendBtn.classList.add('bg-gray-800');
+        sendBtn.classList.remove('hover:bg-gray-600');
+
+        try {
+            const response = await fetch('/send_code', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email })
+            });
+
+            const result = await response.json();
+            if (result.result) {
+                alert("验证码已发送至你的邮箱！（本地开发可看控制台）");
+                // 倒计时逻辑
+                let countdown = 60;
+                sendBtn.textContent = `${countdown}秒后重发`;
+                const timer = setInterval(() => {
+                    countdown--;
+                    sendBtn.textContent = `${countdown}秒后重发`;
+                    if (countdown <= 0) {
+                        clearInterval(timer);
+                        sendBtn.disabled = false;
+                        sendBtn.textContent = "发送验证码";
+                        sendBtn.classList.remove('bg-gray-800');
+                        sendBtn.classList.add('hover:bg-gray-600');
+                    }
+                }, 1000);
+            } else {
+                alert("发送失败: " + result.message);
+                // 恢复按钮
+                sendBtn.disabled = false;
+                sendBtn.textContent = "发送验证码";
+                sendBtn.classList.remove('bg-gray-800');
+                sendBtn.classList.add('hover:bg-gray-600');
+            }
+        } catch (error) {
+            console.error("发送验证码出错:", error);
+            alert("网络异常，发送失败！");
+            // 恢复按钮
+            sendBtn.disabled = false;
+            sendBtn.textContent = "发送验证码";
+            sendBtn.classList.remove('bg-gray-800');
+            sendBtn.classList.add('hover:bg-gray-600');
+        }
+    }
+    {% block script %}{% endblock %}
+</script>
+</html>

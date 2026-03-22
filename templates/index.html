@@ -1,0 +1,244 @@
+{% extends "bash.html" %}
+
+{% block where %}首页{% endblock %}
+{% block breadcrumb %}
+  <!-- 核心样式：text-4xl（超大号） + 淡蓝→淡黄渐变 + 加粗 -->
+  <span class="text-5xl font-semibold bg-gradient-to-r from-sky-100 to-yellow-100 bg-clip-text text-transparent">
+    与你的每一天就是奇迹
+  </span>
+{% endblock %}
+{% block head %}
+<style>
+    /* 顶部标题区样式 */
+    .page-header {
+        text-align: center;
+        padding-top: 5rem;
+    }
+    .page-title {
+        font-family: 'Noto Serif SC', serif;
+        font-size: 2.8rem;
+        font-weight: 700;
+        color: #fff;
+    }
+    .page-description {
+        color: #888;
+        margin-top: 3rem;
+        font-size: 2.2rem;
+        line-height: 1.8;
+    }
+
+    /* 长方形卡片核心样式 */
+    .profile-card {
+        background-color: #000;
+        border: 1px solid #2d2f31;
+        border-radius: 1rem;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        transition: transform 0.3s ease;
+    }
+    .profile-card:hover {
+        transform: translateY(-5px);
+        border-color: #444;
+    }
+
+    .profile-content {
+        display: grid;
+        /* 左侧文字占满剩余空间，右侧图片固定 400px */
+        grid-template-columns: 1fr 400px;
+        /* 调整此高度来控制长方形的“扁平”程度 */
+        min-height: 350px;
+    }
+
+    .text-section {
+        padding: 3rem 4rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+    }
+    .quote-mark {
+        position: absolute;
+        left: 0; top: 3rem; bottom: 3rem;
+        width: 4px; background: #333;
+    }
+
+    .quote-zh {
+        font-family: 'Noto Serif SC', serif;
+        font-size: 1.5rem;
+        line-height: 1.8;
+        color: #fff;
+        margin-bottom: 1rem;
+    }
+    .quote-en {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.2rem;
+        color: #777;
+    }
+
+    .image-section {
+        width: 400px;
+        height: 350px;
+        background: #111;
+    }
+    .profile-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* 底部状态栏 */
+    .fe-be-status {
+        background: #0a0a0a;
+        padding: 1rem 4rem;
+        border-top: 1px solid #2d2f31;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .progress-mini {
+        width: 100px; height: 2px;
+        background: #222;
+        border-radius: 10px;
+    }
+    .progress-inner {
+        height: 100%; background: #a8c7fa;
+    }
+    /* 让链接包裹器不影响内部排版 */
+    .card-link-wrapper {
+        text-decoration: none !important; /* 去掉下划线 */
+        color: inherit !important;       /* 继承原本的文字颜色 */
+        display: block;                  /* 让整个区域可点 */
+    }
+
+    /* 交互增强：鼠标悬停时卡片微微发光或放大 */
+    .profile-card {
+        /* ... 你原有的样式 ... */
+        transition: all 0.3s ease;
+    }
+
+    .card-link-wrapper:hover .profile-card {
+        transform: translateY(-5px); /* 向上微动 */
+        border-color: #a8c7fa;       /* 边框变成 Gemini 蓝色 */
+        box-shadow: 0 10px 30px rgba(168, 199, 250, 0.2); /* 淡淡的蓝光 */
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="max-w-[1600px] mx-auto px-6 pb-20"> <header class="page-header mb-16">
+    <h1 class="page-title" style="
+            font-size: 60px;
+            font-weight: bold;
+            margin-bottom: 24px;
+            background: linear-gradient(90deg, #4A90E2, #0052D9);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        ">
+            碧蓝档案
+    </h1>
+    <p class="page-description">这是一切的结束，也是一切开始</p>
+    <p class="page-description">无需多言</p>
+    <p class="page-description">与你相伴的日常便是奇迹</p>
+    <p class="page-description">Bule ~ Achieve!</p>
+        <div class="mt-8 h-px w-20 bg-[#a8c7fa] mx-auto opacity-50"></div>
+    </header>
+
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+    {% set card_list = [
+        {
+            "url_endpoint": "hina_dress_1",
+            "url_show": "images/hina1.jpg",
+            "zh": "また……風紀委員会が、ゲヘナの敵を掃討する時間ね",
+            "en": "回头见...... 是时候让纪律委员会消灭地狱的敌人了.",
+            "status": "空崎ヒナ",
+            "progress": "80%"
+        },
+        {
+            "url_endpoint": "hoshino_dress_2",
+            "url_show": "images/hoshino2.jpg",
+            "zh": "またこうして新しい一年が始まるんだね。今年もよろしくね、先生？",
+            "en": "えへへ～、私の心をこんなに動かすのは先生だけだぁ。",
+            "status": "hoshino",
+            "progress": "80%"
+        },
+        {
+            "url_endpoint": "hina_dress_2",
+            "url_show": "images/hina2.jpg",
+            "zh": "これから……先生のために演奏するね。",
+            "en": "its gentle purple a whisper of eternal love.",
+            "status": "空崎 ヒナ（ドレス）",
+            "progress": "65%"
+        },
+        {
+            "url_endpoint": "azusa_dress_1",
+            "url_show": "images/azusa1.jpg",
+            "zh": "お帰り、先生。 やるべきことがまだまだたくさんあるよ",
+            "en": "できれば、このままずっと…… ん？あれ、先生、いつの間に……？",
+            "status": "Focusing on Practical Robotics",
+            "progress": "80%"
+            },
+        {
+            "url_endpoint": "hina_dress_3",
+            "url_show": "images/hina3.jpg",
+            "zh": "この夏が終わる、最後の瞬間まで……。",
+            "en": "私がすぐそばで、先生の事を助けるから。",
+            "status": "空崎 ヒナ（水着）",
+            "progress": "80%"
+        },
+        {
+            "url_endpoint": "hoshino_dress_1",
+            "url_show": "images/hoshino1.jpg",
+            "zh": "ふぁ～、適当にやろうよ～ゆとりが大事なんだから～",
+            "en": "えへへ～、私の心をこんなに動かすのは先生だけだぁ。",
+            "status": "hoshino",
+            "progress": "65%"
+        },
+        {
+            "url_endpoint": "hoshino_dress_3",
+            "url_show": "images/hoshino3.jpg",
+            "zh": "…おじさんの力が必要になったら、いつでも言うんだよ。",
+            "en": "先生のことは、いつだって最優先だからさ。",
+            "status": "Integrated with Gemini API",
+            "progress": "65%"
+            },
+        {
+            "url_endpoint": "wink_dress_1",
+            "url_show": "images/wink1.jpg",
+            "zh": "大人しく、良い子にして待ってますから",
+            "en": "像大人一样成熟稳重的乖孩子在等着你！",
+            "status": "Integrated with Gemini API",
+            "progress": "65%"
+            },
+
+    ] %}
+
+    {% for card in card_list %}
+    <a href="{{ url_for(card.url_endpoint) }}" class="card-link-wrapper">
+        <div class="profile-card">
+            <div class="profile-content">
+                <div class="text-section">
+                    <div class="quote-mark"></div>
+                    <p class="quote-zh">{{ card.zh }}</p>
+                    <p class="quote-en">{{ card.en }}</p>
+                </div>
+                <div class="image-section">
+                    <img src="{{ url_for('static', filename=card.url_show) }}" class="profile-img" alt="Left profile">
+                </div>
+            </div>
+            <div class="fe-be-status">
+                <span class="text-sm opacity-60">{{ card.status }}</span>
+                <div class="progress-mini"><div class="progress-inner" style="width: {{ card.progress }}"></div></div>
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block script %}
+{% endblock %}
