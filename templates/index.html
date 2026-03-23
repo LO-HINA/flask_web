@@ -151,7 +151,8 @@
     <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
     {% set card_list = [
         {
-            "url_endpoint": "hina_dress_1",
+            "character": "hina",
+            "dress_id": 1,
             "url_show": "images/hina1.jpg",
             "zh": "また……風紀委員会が、ゲヘナの敵を掃討する時間ね",
             "en": "回头见...... 是时候让纪律委员会消灭地狱的敌人了.",
@@ -159,7 +160,8 @@
             "progress": "80%"
         },
         {
-            "url_endpoint": "hoshino_dress_2",
+            "character": "hoshino",
+            "dress_id": 2,
             "url_show": "images/hoshino2.jpg",
             "zh": "またこうして新しい一年が始まるんだね。今年もよろしくね、先生？",
             "en": "えへへ～、私の心をこんなに動かすのは先生だけだぁ。",
@@ -167,7 +169,8 @@
             "progress": "80%"
         },
         {
-            "url_endpoint": "hina_dress_2",
+            "character": "hina",
+            "dress_id": 2,
             "url_show": "images/hina2.jpg",
             "zh": "これから……先生のために演奏するね。",
             "en": "its gentle purple a whisper of eternal love.",
@@ -175,7 +178,8 @@
             "progress": "65%"
         },
         {
-            "url_endpoint": "azusa_dress_1",
+            "character": "azusa",
+            "dress_id": 1,
             "url_show": "images/azusa1.jpg",
             "zh": "お帰り、先生。 やるべきことがまだまだたくさんあるよ",
             "en": "できれば、このままずっと…… ん？あれ、先生、いつの間に……？",
@@ -183,7 +187,8 @@
             "progress": "80%"
             },
         {
-            "url_endpoint": "hina_dress_3",
+            "character": "hina",
+            "dress_id": 3,
             "url_show": "images/hina3.jpg",
             "zh": "この夏が終わる、最後の瞬間まで……。",
             "en": "私がすぐそばで、先生の事を助けるから。",
@@ -191,7 +196,8 @@
             "progress": "80%"
         },
         {
-            "url_endpoint": "hoshino_dress_1",
+            "character": "hoshino",
+            "dress_id": 1,
             "url_show": "images/hoshino1.jpg",
             "zh": "ふぁ～、適当にやろうよ～ゆとりが大事なんだから～",
             "en": "えへへ～、私の心をこんなに動かすのは先生だけだぁ。",
@@ -199,7 +205,8 @@
             "progress": "65%"
         },
         {
-            "url_endpoint": "hoshino_dress_3",
+            "character": "hoshino",
+            "dress_id": 3,
             "url_show": "images/hoshino3.jpg",
             "zh": "…おじさんの力が必要になったら、いつでも言うんだよ。",
             "en": "先生のことは、いつだって最優先だからさ。",
@@ -207,7 +214,8 @@
             "progress": "65%"
             },
         {
-            "url_endpoint": "wink_dress_1",
+            "character": "wink",
+            "dress_id": 1,
             "url_show": "images/wink1.jpg",
             "zh": "大人しく、良い子にして待ってますから",
             "en": "像大人一样成熟稳重的乖孩子在等着你！",
@@ -218,7 +226,7 @@
     ] %}
 
     {% for card in card_list %}
-    <a href="{{ url_for(card.url_endpoint) }}" class="card-link-wrapper">
+    <a href="{{ url_for('character_dress', character=card.character, dress_id=card.dress_id) }}" class="card-link-wrapper">
         <div class="profile-card">
             <div class="profile-content">
                 <div class="text-section">
