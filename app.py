@@ -24,6 +24,8 @@ app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+print(f"--- MAIL CONFIG CHECK: PORT={app.config['MAIL_PORT']}, SSL={app.config['MAIL_USE_SSL']}, TLS={app.config['MAIL_USE_TLS']} ---")
+
 # 绑定扩展
 db.init_app(app)
 mail.init_app(app)
