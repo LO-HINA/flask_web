@@ -391,21 +391,30 @@
 
 
     // 发送验证码函数
+    // 发送验证码函数（优化版）
     async function sendVerifyCode() {
         const email = document.getElementById('authEmail').value;
         const sendBtn = document.getElementById('sendCodeBtn');
 
-        // 邮箱格式简单校验
+        // 1. 基础校验
         if (!email || !email.includes('@')) {
             alert("请输入有效的邮箱地址！");
             return;
         }
 
-        // 按钮置灰防重复点击
+        // 2. 按钮状态切换（防抖）
         sendBtn.disabled = true;
         sendBtn.textContent = "发送中...";
         sendBtn.classList.add('bg-gray-800');
         sendBtn.classList.remove('hover:bg-gray-600');
+
+        // 辅助函数：用于在失败时恢复按钮状态
+        const resetBtn = () => {
+            sendBtn.disabled = false;
+            sendBtn.textContent = "发送验证码";
+            sendBtn.classList.remove('bg-gray-800');
+            sendBtn.classList.add('hover:bg-gray-600');
+        };
 
         try {
             const response = await fetch('/send_code', {
@@ -414,39 +423,40 @@
                 body: JSON.stringify({ email: email })
             });
 
+            // 3. 关键：判断后端是否崩溃（如 500 错误）
+            if (!response.ok) {
+                throw new Error(`服务器响应异常: ${response.status}`);
+            }
+
             const result = await response.json();
+
+            // 4. 处理业务层逻辑
             if (result.result) {
-                alert("验证码已发送至你的邮箱！（本地开发可看控制台）");
+                alert("验证码已发送至你的邮箱！");
+
                 // 倒计时逻辑
                 let countdown = 60;
                 sendBtn.textContent = `${countdown}秒后重发`;
                 const timer = setInterval(() => {
                     countdown--;
-                    sendBtn.textContent = `${countdown}秒后重发`;
                     if (countdown <= 0) {
                         clearInterval(timer);
-                        sendBtn.disabled = false;
-                        sendBtn.textContent = "发送验证码";
-                        sendBtn.classList.remove('bg-gray-800');
-                        sendBtn.classList.add('hover:bg-gray-600');
+                        resetBtn();
+                    } else {
+                        sendBtn.textContent = `${countdown}秒后重发`;
                     }
                 }, 1000);
             } else {
+                // 后端返回具体的业务错误（如：邮箱已注册）
                 alert("发送失败: " + result.message);
-                // 恢复按钮
-                sendBtn.disabled = false;
-                sendBtn.textContent = "发送验证码";
-                sendBtn.classList.remove('bg-gray-800');
-                sendBtn.classList.add('hover:bg-gray-600');
+                resetBtn();
             }
+
         } catch (error) {
+            // 5. 捕获网络错误、500 错误或 JSON 解析错误
             console.error("发送验证码出错:", error);
-            alert("网络异常，发送失败！");
-            // 恢复按钮
-            sendBtn.disabled = false;
-            sendBtn.textContent = "发送验证码";
-            sendBtn.classList.remove('bg-gray-800');
-            sendBtn.classList.add('hover:bg-gray-600');
+            alert("请求出错：" + error.message);
+            resetBtn();
         }
     }
     {% block script %}{% endblock %}
