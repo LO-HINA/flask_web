@@ -11,15 +11,20 @@ import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-# 新增这行（加MAIL配置，和Render环境变量对应）
+
+# --- 严格匹配你 Render 环境变量名的配置 ---
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
-app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))  # 端口转整数
-app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'  # 字符串转布尔
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 465))
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'
+app.config['MAIL_USE_SSL'] = os.getenv('MAIL_USE_SSL') == 'True'  # 核心：增加这一行读取你的新变量
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+# ---------------------------------------
+
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # 新增，关闭修改跟踪
-# 绑定扩展到Flask应用
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# 绑定扩展
 db.init_app(app)
 mail.init_app(app)
 with app.app_context():
